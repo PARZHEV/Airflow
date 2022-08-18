@@ -14,38 +14,9 @@ from airflow.providers.postgres.hooks.postgres  import PostgresHook
 from airflow.providers.postgres.operators.postgres  import PostgresOperator
 import psycopg2
 from sqlalchemy import create_engine
-# from download_titanic_dataset import download_titanic_dataset
-# from pivot_dataset import pivot_dataset
-# from mean_fare_per_class import mean_fare_per_class
-
-
-def get_path(file_name):
-    return os.path.join(os.path.expanduser('~'), file_name)
-
-def download_titanic_dataset(ti):
-    
-    url = 'https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv'
-    df = pd.read_csv(url)      
-    out = df.to_json(orient='records')
-  
-    ti.xcom_push(key='key', value=out)   
-
-def pivot_dataset():
-    titanic_data = ti.xcom_pull(key='key')
-    titanic_df = pd.read_json(titanic_data)
-    df = titanic_df.pivot_table(index=['Sex'],
-                                columns=['Pclass'],
-                                values='Name',
-                                aggfunc='count').reset_index()
-    engine = create_engine('postgresql+psycopg2://airflow:airflow@localhost:5432/airflow')
-    return df.to_sql(f'{Variable.get("var")}', engine)
-
-def mean_fare_per_class():
-    titanic_data = ti.xcom_pull(key='key')
-    titanic_mean_df = pd.read_json(titanic_data)
-    df2 = titanic_mean_df.set_index('Pclass')[['Fare']].stack().mean(level=0)
-    engine = create_engine('postgresql+psycopg2://airflow:airflow@localhost:5432/airflow')
-    return df2.to_sql(f'{Variable.get("var2")}', engine)
+from download_titanic_dataset import download_titanic_dataset
+from pivot_dataset import pivot_dataset
+from mean_fare_per_class import mean_fare_per_class
 
 
 
